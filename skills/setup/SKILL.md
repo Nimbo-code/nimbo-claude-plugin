@@ -25,23 +25,23 @@ source .venv/bin/activate
 
 Install base package:
 ```bash
-pip install nimbo
+pip install nimbo-code
 ```
 
 Ask the user which optional extras they need, then install accordingly:
 
 | Extra | Command | When to use |
 |-------|---------|-------------|
-| QLoRA | `pip install nimbo[qlora]` | 4/8-bit quantized training (needs CUDA) |
-| Flash Attention | `pip install nimbo[flash]` | Faster attention on CUDA GPUs |
-| W&B Logging | `pip install nimbo[wandb]` | Weights & Biases experiment tracking |
-| CoreML | `pip install nimbo[coreml]` | CoreML export (macOS only) |
-| All | `pip install nimbo[all]` | Everything |
+| QLoRA | `pip install nimbo-code[qlora]` | 4/8-bit quantized training (needs CUDA) |
+| Flash Attention | `pip install nimbo-code[flash]` | Faster attention on CUDA GPUs |
+| W&B Logging | `pip install nimbo-code[wandb]` | Weights & Biases experiment tracking |
+| CoreML | `pip install nimbo-code[coreml]` | CoreML export (macOS only) |
+| All | `pip install nimbo-code[all]` | Everything |
 
 If the user is unsure, recommend:
-- **CUDA GPU**: `pip install nimbo[qlora,flash]`
-- **Apple Silicon**: `pip install nimbo[coreml]`
-- **CPU only**: `pip install nimbo` (base only)
+- **CUDA GPU**: `pip install nimbo-code[qlora,flash]`
+- **Apple Silicon**: `pip install nimbo-code[coreml]`
+- **CPU only**: `pip install nimbo-code` (base only)
 
 ## Step 3: GPU Detection
 

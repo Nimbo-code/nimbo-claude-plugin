@@ -13,7 +13,7 @@ Refer to `skills/export/reference.md` for complete conversion options.
 ## Prerequisites
 
 - **macOS only** — CoreML conversion requires macOS
-- **coremltools** — `pip install nimbo[coreml]` or `pip install coremltools safetensors`
+- **coremltools** — `pip install nimbo-code[coreml]` or `pip install coremltools safetensors`
 - **Merged model** — The model must be saved with `trainer.save(merge=True)`
 - **LLaMA architecture** — Currently only LLaMA-based models are supported for CoreML export
 

@@ -39,7 +39,7 @@ When the user needs help choosing a model:
 | CUDA OOM | Model too large for VRAM | Use QLoRA, reduce batch size, enable gradient checkpointing |
 | Loss not decreasing | Learning rate too low/high | Adjust LR, check data quality |
 | Loss NaN | Numerical instability | Use bf16 instead of fp16, reduce LR, check data |
-| Import error | Missing dependency | `pip install nimbo[all]` or specific extra |
+| Import error | Missing dependency | `pip install nimbo-code[all]` or specific extra |
 | Tokenizer warning | Padding token missing | Set `tokenizer.pad_token = tokenizer.eos_token` |
 | CoreML export fails | Not macOS or wrong architecture | Verify macOS + LLaMA architecture |
 | Triton not available | No CUDA or triton not installed | `pip install triton` (CUDA only) |

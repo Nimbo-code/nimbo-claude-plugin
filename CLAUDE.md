@@ -19,13 +19,13 @@ Nimbo provides a 3-line fine-tuning API with Triton kernel acceleration, CoreML 
 ## 1. Installation
 
 ```bash
-pip install nimbo
+pip install nimbo-code
 # Optional extras:
-pip install nimbo[qlora]        # bitsandbytes for 4/8-bit quantization
-pip install nimbo[flash]        # flash-attn
-pip install nimbo[wandb]        # wandb logging
-pip install nimbo[coreml]       # coremltools + safetensors (macOS only)
-pip install nimbo[all]          # everything
+pip install nimbo-code[qlora]        # bitsandbytes for 4/8-bit quantization
+pip install nimbo-code[flash]        # flash-attn
+pip install nimbo-code[wandb]        # wandb logging
+pip install nimbo-code[coreml]       # coremltools + safetensors (macOS only)
+pip install nimbo-code[all]          # everything
 ```
 
 **Requirements:**

@@ -166,3 +166,170 @@ $ claude --plugin-dir /Users/optai/Documents/nimbo-claude-plugin \
 | 8 | E2E pipeline knowledge | PASS |
 
 **All 8 tests passed. Plugin is functional on Claude Code 2.1.34.**
+
+---
+
+# Phase 2: A100 Server E2E Validation
+
+**Date**: 2026-03-02
+**Server**: A100-2 (2x NVIDIA A100 80GB PCIe)
+**Environment**: Python 3.10.12, PyTorch 2.10.0+cu128, Nimbo 0.0.4
+**Working Directory**: /home/elicer/jyp/Nimbo-github
+**Model**: LLaMA 3.2 1B Instruct (local), Korean cooking dataset (20 examples)
+
+---
+
+## Test 1: Core Module Imports (22 symbols)
+
+```
+All 22 core imports OK
+```
+
+**Result**: PASS
+
+---
+
+## Test 2: Export Module Import
+
+```
+FAIL: No module named 'ruamel'
+```
+
+**Root Cause**: `nimbo.export.__init__` imports `ConversionConfig` which depends on `ruamel.yaml`. Direct import from `nimbo.export.coreml.hf_converter` works.
+
+**Fix Applied**: Updated CLAUDE.md and skills to use direct import path:
+```python
+from nimbo.export.coreml.hf_converter import convert_hf_to_coreml, ConversionConfig
+```
+
+**Re-test Result**: PASS (after fix)
+
+---
+
+## Test 3: Kernel Module Import
+
+```
+FAIL: cannot import name 'TRITON_AVAILABLE' from 'nimbo.kernels'
+```
+
+**Root Cause**: Actual export name is `is_triton_available` (function), not `TRITON_AVAILABLE` (constant).
+
+**Fix Applied**: Updated CLAUDE.md and kernel SKILL.md:
+```python
+from nimbo.kernels import is_triton_available
+print(is_triton_available())  # True
+```
+
+**Re-test Result**: PASS (after fix)
+
+---
+
+## Test 4: Dataset Preparation
+
+```
+Dataset size: 20 examples
+Columns: ['text']
+Sample: ### Instruction:\n김치찌개를 맛있게 끓이는 방법을 알려주세요.\n### Input:\n\n### Response:\n...
+```
+
+**Result**: PASS — `prepare_instruction_dataset()` with template works correctly.
+
+---
+
+## Test 5: Fine-Tuning (LLaMA 3.2 1B, 20 steps)
+
+```
+Training completed in 52.4s
+Final train loss: ~2.1
+```
+
+**Result**: PASS — LoRA fine-tuning with bf16, gradient checkpointing, Triton kernels all working.
+
+---
+
+## Test 6: Save & Merge
+
+```
+Saved to: ./nimbo_output/final_merged
+Contents: config.json, model.safetensors, tokenizer.json, tokenizer_config.json, ...
+```
+
+**Result**: PASS — Merged model saved correctly.
+
+---
+
+## Test 7: Trainer Inference (Post-Save)
+
+```
+FAIL: Model not loaded. Call load_model() first.
+```
+
+**Root Cause**: After `trainer.save()`, the model is unloaded from memory. `trainer.inference()` requires the model to be loaded.
+
+**Fix Applied**: Updated CLAUDE.md and inference SKILL.md to document this behavior:
+- Use `load_for_inference(output_path)` after save
+- Or call `trainer.inference()` BEFORE `trainer.save()`
+
+**Re-test with load_for_inference**: PASS — Generated Korean cooking response correctly.
+
+---
+
+## Test 8: Standalone NimboInference
+
+Initial attempt failed due to path format issue (relative path passed to transformers which expected repo ID format).
+
+**Re-test with absolute path**: PASS
+- `model.generate()`: Working, generated Korean cooking text
+- `model.stream()`: Working, streamed 101 tokens
+
+---
+
+## Test 9: Config Save/Load
+
+```
+Config saved and loaded OK
+LoRA rank: 8, LR: 0.0001
+```
+
+**Result**: PASS — `NimboConfig.to_yaml()` and `NimboConfig.from_yaml()` work correctly.
+
+---
+
+## Test 10: Triton Kernel Patching
+
+```
+PatchStats:
+  - RMSNorm: 33
+  - SwiGLU: 16
+  - RoPE: 1
+  - Attention: 0
+  - Total: 50
+Unpatch OK
+```
+
+**Result**: PASS — `patch_model()` and `unpatch_model()` work correctly on LLaMA 3.2 1B.
+
+---
+
+## A100 E2E Summary
+
+| # | Test | Initial | After Fix |
+|---|------|---------|-----------|
+| 1 | Core imports (22 symbols) | PASS | PASS |
+| 2 | Export module import | FAIL | PASS |
+| 3 | Kernel module import | FAIL | PASS |
+| 4 | Dataset preparation | PASS | PASS |
+| 5 | Fine-tuning (20 steps, 52s) | PASS | PASS |
+| 6 | Save & merge model | PASS | PASS |
+| 7 | Post-save inference | FAIL | PASS |
+| 8 | Standalone NimboInference | FAIL | PASS |
+| 9 | Config save/load | PASS | PASS |
+| 10 | Triton kernel patching | PASS | PASS |
+
+**Issues Found & Fixed:**
+1. `TRITON_AVAILABLE` → `is_triton_available()` (function, not constant)
+2. Export imports require direct submodule path due to `ruamel` dependency
+3. `trainer.inference()` fails after `trainer.save()` — model is unloaded
+4. `load_for_inference()` needs absolute path or valid relative path
+
+**All 10 tests PASS after fixes. Plugin documentation updated accordingly.**

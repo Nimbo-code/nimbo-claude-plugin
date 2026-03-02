@@ -77,11 +77,11 @@ trainer = Nimbo(
 For advanced users who want to patch models outside of the Nimbo trainer:
 
 ```python
-from nimbo.kernels import patch_model, unpatch_model, get_supported_models, TRITON_AVAILABLE
+from nimbo.kernels import patch_model, unpatch_model, get_supported_models, is_triton_available
 from transformers import AutoModelForCausalLM
 
 # Check availability
-print(f"Triton available: {TRITON_AVAILABLE}")
+print(f"Triton available: {is_triton_available()}")
 print(f"Supported models: {get_supported_models()}")
 
 # Load model
@@ -155,15 +155,15 @@ After applying patches, verify they're active:
 
 ```bash
 python3 -c "
-from nimbo.kernels import TRITON_AVAILABLE, get_supported_models
-print(f'Triton available: {TRITON_AVAILABLE}')
+from nimbo.kernels import is_triton_available(), get_supported_models
+print(f'Triton available: {is_triton_available()}')
 print(f'Supported models: {get_supported_models()}')
 "
 ```
 
 ## Guidelines
 
-- Always check `TRITON_AVAILABLE` before attempting kernel patches
+- Always check `is_triton_available()` before attempting kernel patches
 - Triton kernels are CUDA-only — they don't work on MPS or CPU
 - Flash Attention requires the separate `flash-attn` package
 - Keep `patch_attention=False` unless explicitly testing

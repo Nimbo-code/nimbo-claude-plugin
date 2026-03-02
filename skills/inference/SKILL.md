@@ -103,8 +103,15 @@ print(response)
 ### Using from Trainer (Post-Training)
 
 ```python
-# After trainer.train() and trainer.save()
+# IMPORTANT: After trainer.save(), the model is unloaded from memory.
+# You must use load_for_inference() for post-save inference:
+output_path = trainer.save(merge=True)
+model = load_for_inference(output_path, device="cuda")
+result = model.generate("Test prompt here")
+
+# Alternatively, call inference BEFORE save:
 result = trainer.inference("Test prompt here")
+trainer.save(merge=True)
 ```
 
 ## Step 4: Adapter Operations

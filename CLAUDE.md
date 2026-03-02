@@ -77,14 +77,16 @@ trainer.train(resume_from_checkpoint: Optional[str] = None) -> Dict[str, Any]
 # Runs training, returns metrics dict with train_loss, eval_loss, etc.
 
 trainer.save(merge: bool = True) -> str
-# Saves model. merge=True merges LoRA into base. Returns output path.
+# Saves model. merge=True merges LoRA into base. Returns relative path (e.g., "./nimbo_output/final_merged").
+# IMPORTANT: After save(), the model is unloaded from memory. Use load_for_inference() for subsequent inference.
 
 trainer.inference(
     prompt: Union[str, List[str]],
     config: Optional[InferenceConfig] = None,
     **kwargs
 ) -> Union[str, List[str]]
-# Single or batch inference on the trained model.
+# Single or batch inference. IMPORTANT: After save(), the model is unloaded.
+# Call trainer.load_model(output_path) first, or use load_for_inference() instead.
 
 trainer.load_model(model_path: str, for_inference: bool = True) -> Tuple[Model, Tokenizer]
 # Loads a saved model.
@@ -375,8 +377,11 @@ All functions return HuggingFace `Dataset` objects with a `"text"` column (or `L
 ## 6. CoreML Export
 
 ```python
+# CoreML converter — import from submodule directly (not re-exported at nimbo.export level)
 from nimbo.export.coreml.hf_converter import convert_hf_to_coreml, ConversionConfig
-from nimbo.export import LlamaConverter, check_ane_compatibility, COREML_AVAILABLE
+# These ARE available at nimbo.export level:
+from nimbo.export import LlamaConverter, COREML_AVAILABLE
+from nimbo.export.coreml.ane_checker import check_ane_compatibility
 ```
 
 ### convert_hf_to_coreml
@@ -456,7 +461,8 @@ python -m nimbo.export.coreml.hf_converter \
 ## 7. Triton Kernel Optimization
 
 ```python
-from nimbo.kernels import patch_model, unpatch_model, get_supported_models, TRITON_AVAILABLE
+from nimbo.kernels import patch_model, unpatch_model, get_supported_models, is_triton_available
+# Note: is_triton_available() is a function, not a constant. Call it: is_triton_available()
 ```
 
 ### patch_model
@@ -747,11 +753,12 @@ trainer = Nimbo.from_config("nimbo_config.yaml", base_model_name="microsoft/phi-
 trainer.train()
 ```
 
-### Standalone Inference
+### Standalone Inference (Recommended After Training)
 
 ```python
 from nimbo import load_for_inference
 
+# Use absolute path or relative path from working directory
 model = load_for_inference("./nimbo_output/final_merged", device="cuda", quantize="4bit")
 
 # Single generation

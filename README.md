@@ -451,13 +451,23 @@ Claude: [Generates nimbo_config.yaml]
 
 - PyTorch >= 2.0.0
 - NVIDIA GPU (CUDA) or Apple Silicon (MPS)
-- `pip install nimbo`
+- Install from **GitHub** (not PyPI):
+  ```bash
+  pip install git+https://github.com/Nimbo-code/Nimbo.git
+  # Or for local development:
+  git clone https://github.com/Nimbo-code/Nimbo.git && pip install -e ./Nimbo
+  ```
+
+> **Warning:** The `nimbo` package on PyPI is a completely different project. Always install from the [Nimbo-code/Nimbo](https://github.com/Nimbo-code/Nimbo) GitHub repository.
 
 ### For CoreML Export
 
 - macOS
 - coremltools
-- `pip install nimbo[coreml]`
+- `ruamel.yaml` (required for export config parsing):
+  ```bash
+  pip install nimbo[coreml] ruamel.yaml
+  ```
 
 ### For Triton Kernels
 

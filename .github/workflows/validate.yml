@@ -1,0 +1,115 @@
+name: Plugin Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate plugin manifest
+        run: |
+          echo "Checking plugin.json exists and is valid JSON..."
+          python3 -c "
+          import json, sys
+          with open('.claude-plugin/plugin.json') as f:
+              data = json.load(f)
+          required = ['name', 'version', 'description']
+          for field in required:
+              assert field in data, f'Missing required field: {field}'
+          print(f'Plugin: {data[\"name\"]} v{data[\"version\"]}')
+          print('Manifest validation passed')
+          "
+
+      - name: Validate SKILL.md frontmatter
+        run: |
+          echo "Checking all SKILL.md files have valid YAML frontmatter..."
+          python3 -c "
+          import glob, sys
+          skills = glob.glob('skills/*/SKILL.md') + glob.glob('skills/*/*/SKILL.md')
+          if not skills:
+              print('ERROR: No SKILL.md files found')
+              sys.exit(1)
+          errors = []
+          for path in sorted(skills):
+              with open(path) as f:
+                  content = f.read()
+              if not content.startswith('---'):
+                  errors.append(f'{path}: missing YAML frontmatter')
+                  continue
+              parts = content.split('---', 2)
+              if len(parts) < 3:
+                  errors.append(f'{path}: malformed frontmatter')
+                  continue
+              fm = parts[1].strip()
+              has_name = any(line.startswith('name:') for line in fm.split('\n'))
+              has_desc = any(line.startswith('description:') for line in fm.split('\n'))
+              if not has_name:
+                  errors.append(f'{path}: missing name field')
+              if not has_desc:
+                  errors.append(f'{path}: missing description field')
+              else:
+                  print(f'OK: {path}')
+          if errors:
+              for e in errors:
+                  print(f'ERROR: {e}')
+              sys.exit(1)
+          print(f'All {len(skills)} SKILL.md files valid')
+          "
+
+      - name: Check required files exist
+        run: |
+          echo "Checking required plugin files..."
+          python3 -c "
+          import os, sys
+          required = [
+              '.claude-plugin/plugin.json',
+              'CLAUDE.md',
+              'settings.json',
+              'hooks/hooks.json',
+              'hooks/scripts/check-environment.sh',
+              'agents/nimbo-expert.md',
+              'LICENSE',
+              'README.md',
+          ]
+          missing = [f for f in required if not os.path.exists(f)]
+          if missing:
+              for f in missing:
+                  print(f'MISSING: {f}')
+              sys.exit(1)
+          print(f'All {len(required)} required files present')
+          "
+
+      - name: Validate hooks.json
+        run: |
+          python3 -c "
+          import json
+          with open('hooks/hooks.json') as f:
+              data = json.load(f)
+          assert 'hooks' in data, 'Missing hooks key'
+          print(f'Hooks config valid: {len(data[\"hooks\"])} hook(s) defined')
+          "
+
+      - name: Check CLAUDE.md size
+        run: |
+          lines=$(wc -l < CLAUDE.md)
+          echo "CLAUDE.md: ${lines} lines"
+          if [ "$lines" -lt 100 ]; then
+            echo "WARNING: CLAUDE.md seems too short (${lines} lines)"
+            exit 1
+          fi
+          echo "CLAUDE.md size check passed"
+
+      - name: Validate settings.json
+        run: |
+          python3 -c "
+          import json
+          with open('settings.json') as f:
+              data = json.load(f)
+          print(f'Settings valid: {json.dumps(data)}')
+          "

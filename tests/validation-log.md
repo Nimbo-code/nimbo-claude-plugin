@@ -340,7 +340,9 @@ Unpatch OK
 
 **Date**: 2026-03-02
 **Server**: A100-2 (2x NVIDIA A100 80GB PCIe)
-**Environment**: Python 3.10.12, PyTorch 2.10.0+cu128, Nimbo latest main (pyproject.toml 0.1.0, __init__ 0.0.4)
+**Environment**: Python 3.10.12, PyTorch 2.10.0+cu128
+**Nimbo**: latest main branch (commit `378b76c`, pyproject.toml=0.1.0, `__init__`=0.0.4, git tag=v0.0.8+6)
+**Source**: https://github.com/Nimbo-code/Nimbo (verified via `git fetch` — local HEAD matches remote main exactly)
 **Working Directory**: /home/elicer/jyp/Nimbo-github
 **Model**: LLaMA 3.2 1B Instruct (local), Korean cooking dataset (20 examples)
 **Purpose**: Verify plugin compatibility with latest Nimbo main branch after `git pull`

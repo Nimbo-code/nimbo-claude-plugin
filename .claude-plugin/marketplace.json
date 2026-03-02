@@ -1,0 +1,35 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "nimbo",
+  "description": "LLM fine-tuning to on-device deployment — LoRA/QLoRA training, CoreML conversion, and iOS deployment via natural language",
+  "owner": {
+    "name": "Nimbo",
+    "email": "nimbo@nimbo-code.dev"
+  },
+  "plugins": [
+    {
+      "name": "nimbo",
+      "description": "Fine-tune language models with LoRA/QLoRA, convert to CoreML, and deploy to iOS — all through natural language in Claude Code. Supports LLaMA, Mistral, Phi, Qwen, EXAONE and more.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Nimbo",
+        "email": "nimbo@nimbo-code.dev"
+      },
+      "source": "./",
+      "category": "machine-learning",
+      "homepage": "https://github.com/Nimbo-code/nimbo-claude-plugin",
+      "tags": [
+        "llm",
+        "fine-tuning",
+        "lora",
+        "qlora",
+        "coreml",
+        "on-device",
+        "ios",
+        "triton",
+        "nimbo"
+      ]
+    }
+  ],
+  "version": "1.0.0"
+}

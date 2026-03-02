@@ -1,0 +1,12 @@
+{
+  "name": "nimbo",
+  "version": "1.0.0",
+  "description": "LLM fine-tuning to on-device deployment with Nimbo — LoRA/QLoRA training, CoreML conversion, and iOS deployment via natural language",
+  "author": {
+    "name": "Nimbo",
+    "url": "https://github.com/Nimbo-code/Nimbo"
+  },
+  "repository": "https://github.com/Nimbo-code/nimbo-claude-plugin",
+  "license": "Apache-2.0",
+  "keywords": ["llm", "fine-tuning", "lora", "qlora", "coreml", "on-device", "ios", "triton", "nimbo"]
+}

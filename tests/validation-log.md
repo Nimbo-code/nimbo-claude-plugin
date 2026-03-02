@@ -333,3 +333,59 @@ Unpatch OK
 4. `load_for_inference()` needs absolute path or valid relative path
 
 **All 10 tests PASS after fixes. Plugin documentation updated accordingly.**
+
+---
+
+# Phase 3: Latest Main Branch Re-Validation
+
+**Date**: 2026-03-02
+**Server**: A100-2 (2x NVIDIA A100 80GB PCIe)
+**Environment**: Python 3.10.12, PyTorch 2.10.0+cu128, Nimbo latest main (pyproject.toml 0.1.0, __init__ 0.0.4)
+**Working Directory**: /home/elicer/jyp/Nimbo-github
+**Model**: LLaMA 3.2 1B Instruct (local), Korean cooking dataset (20 examples)
+**Purpose**: Verify plugin compatibility with latest Nimbo main branch after `git pull`
+
+---
+
+## Changes from Previous Test
+
+- Nimbo source updated via `git pull` (new commits: tied tensor fix in hf_converter, SampleApp UI redesign)
+- Reinstalled from source: `pip install -e .`
+- Test script adapted:
+  - Removed `DataConfig` (not exported in latest Nimbo)
+  - Used `LoRAConfig`/`TrainingConfig` objects instead of direct kwargs (Nimbo constructor doesn't accept `lora_r`, `bf16` etc. as direct kwargs)
+  - Fixed `LoRAConfig(alpha=...)` → `LoRAConfig(lora_alpha=...)`
+
+---
+
+## Test Results
+
+| # | Test | Result | Details |
+|---|------|--------|---------|
+| 1 | Core imports (21 symbols) | PASS | All 21 imports OK (`DataConfig` removed — not exported) |
+| 2 | Export module import (direct) | FAIL | `No module named 'ruamel'` (expected — same as before) |
+| 3 | Kernel module import | PASS | `is_triton_available()=True`, 7 supported model families |
+| 4 | Dataset preparation | PASS | 20 examples, instruction template applied |
+| 5 | Fine-tuning (20 steps) | PASS | Completed in 53.4s (vs 52.4s previous) |
+| 6 | Save & merge | PASS | Saved to `nimbo_output/final_merged/` with all expected files |
+| 7 | Post-save inference | PASS | Generated Korean cooking response via `load_for_inference()` |
+| 8 | Streaming | PASS | Streamed 50 tokens |
+| 9 | Chat (multi-turn) | PASS | Chat response with Korean food knowledge |
+| 10 | Config save/load | PASS | YAML round-trip: LoRA r=8, lr=0.0001 |
+| 11 | Triton kernel patching | PASS | `LlamaPatcher` applied and unpatched successfully |
+
+---
+
+## Plugin Documentation Fixes Applied
+
+1. **`DataConfig` removed from CLAUDE.md** — not exported in latest Nimbo, was incorrectly documented
+2. **Nimbo constructor kwargs clarified** — must use config objects (`LoRAConfig`, `TrainingConfig`), not direct kwargs like `lora_r` or `bf16`
+3. **`LoRAConfig.alpha` → `LoRAConfig.lora_alpha`** — correct field name confirmed
+
+---
+
+## Summary
+
+**10/11 PASS** (1 expected FAIL: `ruamel` not installed on CUDA server — CoreML export is macOS-only)
+
+Latest Nimbo main branch is fully compatible with the plugin. Training performance consistent (53.4s vs 52.4s). No regressions detected.

@@ -13,7 +13,7 @@ Claude: Sets up environment → Prepares data → Trains with LoRA → Tests →
 ## Table of Contents
 
 - [Installation](#installation)
-- [Quick Start](#quick-start)
+- [Usage](#usage)
 - [Skills Reference](#skills-reference)
 - [Usage Examples](#usage-examples)
 - [Supported Models](#supported-models)
@@ -26,111 +26,165 @@ Claude: Sets up environment → Prepares data → Trains with LoRA → Tests →
 
 ## Installation
 
-### From GitHub
+### Step 1: Add Marketplace (once)
 
 ```bash
-claude plugin install --from github:Nimbo-code/nimbo-claude-plugin
+claude plugin marketplace add https://github.com/Nimbo-code/nimbo-claude-plugin
 ```
 
-### Local Development
+### Step 2: Install Plugin
+
+```bash
+claude plugin install nimbo
+```
+
+### Verify Installation
+
+```bash
+claude plugin list
+```
+
+`nimbo` 플러그인이 목록에 표시되면 설치 완료입니다. 이후 Claude Code를 실행하면 자동으로 로드됩니다.
+
+### Alternative: Local Development
 
 ```bash
 git clone https://github.com/Nimbo-code/nimbo-claude-plugin.git
 claude --plugin-dir ./nimbo-claude-plugin
 ```
 
-After installation, start a Claude Code session. The plugin automatically loads and detects your environment (Python, GPU, Nimbo installation).
-
 ---
 
-## Quick Start
+## Usage
 
-No commands to memorize. Just describe what you want in natural language:
+설치 후 Claude Code를 실행하면 Nimbo 플러그인이 자동으로 로드됩니다. 별도 설정 없이 바로 사용할 수 있습니다.
+
+### Natural Language (Automatic Skill Matching)
+
+명령어를 외울 필요 없이 자연어로 말하면 Claude가 적절한 스킬을 자동으로 선택합니다:
 
 ```
-You: "Install Nimbo and set up my environment"
-You: "Prepare my JSONL data for instruction tuning"
-You: "Fine-tune Phi-2 on my dataset"
-You: "Test the model with some sample prompts"
-You: "Convert to CoreML for my iPhone"
+"Nimbo 설치해줘"                              → setup 스킬 실행
+"내 JSONL 데이터 학습용으로 준비해줘"              → dataset 스킬 실행
+"LLaMA 3.2 1B를 내 데이터로 파인튜닝해줘"         → train 스킬 실행
+"학습된 모델로 테스트해봐"                        → inference 스킬 실행
+"CoreML로 변환해줘"                             → export 스킬 실행
+"학습 설정 파일 만들어줘"                         → config 스킬 실행
+"Triton으로 학습 속도 올려줘"                     → kernel 스킬 실행
 ```
 
-Claude will automatically select the right skill, configure parameters, generate scripts, and execute them.
+영어도 동일하게 동작합니다:
+
+```
+"Install Nimbo and set up my environment"
+"Prepare my JSONL data for instruction tuning"
+"Fine-tune Phi-2 on my dataset"
+"Test the model with some sample prompts"
+"Convert to CoreML for my iPhone"
+```
+
+### Direct Skill Invocation
+
+스킬을 직접 호출할 수도 있습니다:
+
+```
+/nimbo:setup       # 환경 설치 & 초기화
+/nimbo:dataset     # 데이터셋 준비
+/nimbo:train       # LoRA/QLoRA 파인튜닝
+/nimbo:inference   # 추론 & 모델 테스트
+/nimbo:export      # CoreML 변환
+/nimbo:deploy      # iOS 배포 (수동 전용)
+/nimbo:config      # 설정 파일 관리
+/nimbo:kernel      # Triton 커널 최적화
+```
 
 ### Your First Fine-Tuning in 3 Steps
 
 **Step 1** — Setup:
 ```
-You: "Set up Nimbo with QLoRA support"
+You: "Nimbo 설치하고 환경 세팅해줘"
 ```
-Claude installs Nimbo, creates a virtual environment, detects your GPU, and installs the right dependencies.
+Claude가 Python 확인, 가상환경 생성, Nimbo 설치, GPU 감지까지 자동으로 수행합니다.
 
 **Step 2** — Train:
 ```
-You: "Fine-tune microsoft/phi-2 on my_data.jsonl with LoRA rank 16"
+You: "microsoft/phi-2를 my_data.jsonl로 LoRA rank 16으로 파인튜닝해줘"
 ```
-Claude generates a training script with optimal configuration for your hardware and runs it.
+Claude가 하드웨어에 맞는 최적 설정으로 학습 스크립트를 생성하고 실행합니다.
 
 **Step 3** — Test:
 ```
-You: "Test the model — ask it to explain what LoRA is"
+You: "학습된 모델에 '한국의 수도는?' 이라고 물어봐"
 ```
-Claude loads the fine-tuned model and runs inference with your prompt.
+Claude가 파인튜닝된 모델을 로드하고 추론을 실행합니다.
+
+### One-Liner E2E Pipeline
+
+한 문장으로 전체 파이프라인을 실행할 수도 있습니다:
+
+```
+You: "LLaMA 3.2 1B를 한국어 요리 데이터로 파인튜닝하고 iPhone에 배포해줘"
+```
+
+Claude가 자동으로 아래 전체 파이프라인을 수행합니다:
+
+```
+환경설정 → 데이터준비 → LoRA 학습 → 모델 테스트 → CoreML 변환 → iOS 배포 안내
+```
 
 ---
 
 ## Skills Reference
 
-The plugin provides 8 skills that can be triggered by natural language or invoked directly with `/nimbo:<skill>`.
+8개의 스킬이 제공되며, 자연어 또는 `/nimbo:<skill>` 명령으로 실행할 수 있습니다.
 
 ### `/nimbo:setup` — Environment Setup
 
-Install Nimbo, configure virtual environment, detect GPU, and set up dependencies.
+Nimbo 설치, 가상환경 구성, GPU 감지, 의존성 설치를 수행합니다.
 
 **Natural language triggers:**
 ```
-"Install Nimbo"
-"Set up the environment"
-"Check my GPU"
-"Configure Nimbo with CoreML support"
+"Install Nimbo"                    "Nimbo 설치해줘"
+"Set up the environment"           "환경 세팅해줘"
+"Check my GPU"                     "내 GPU 확인해줘"
+"Configure Nimbo with QLoRA"       "QLoRA 쓸 수 있게 세팅해줘"
 ```
 
 **What it does:**
-1. Checks Python version (>= 3.9)
-2. Creates/activates virtual environment
-3. Installs Nimbo with appropriate extras (qlora, flash, coreml, wandb)
-4. Detects CUDA GPU / Apple Silicon MPS / CPU
-5. Optionally runs HuggingFace login for gated models
-6. Verifies the installation
+1. Python 버전 확인 (>= 3.9)
+2. 가상환경 생성/활성화
+3. Nimbo 및 선택적 의존성 설치 (qlora, flash, coreml, wandb)
+4. CUDA GPU / Apple Silicon MPS / CPU 감지
+5. HuggingFace 로그인 (gated 모델 사용 시)
+6. 설치 검증
 
 ---
 
 ### `/nimbo:dataset` — Dataset Preparation
 
-Load, convert, chunk, filter, and validate training data in various formats.
+다양한 형식의 학습 데이터를 로드, 변환, 청킹, 필터링합니다.
 
 **Natural language triggers:**
 ```
-"Prepare my JSONL data for training"
-"Convert my CSV to instruction format"
-"Load and chunk my text files"
-"Create an instruction tuning dataset"
+"Prepare my JSONL data for training"     "내 JSONL 데이터 학습용으로 준비해줘"
+"Convert my CSV to instruction format"   "CSV를 인스트럭션 형식으로 변환해줘"
+"Load and chunk my text files"           "텍스트 파일 불러와서 청킹해줘"
 ```
 
 **Supported formats:** JSONL, CSV, Parquet, plain text, HuggingFace datasets
 
-**Key APIs used:**
+**Key APIs:**
 ```python
-# Plain text / continual pre-training
-from nimbo import prepare_dataset
-dataset = prepare_dataset("data.jsonl", chunk_size=256, deduplicate=True)
-
 # Instruction tuning (most common)
 from nimbo import prepare_instruction_dataset
 dataset = prepare_instruction_dataset(
     "instructions.jsonl",
     template="### Instruction:\n{instruction}\n### Input:\n{input}\n### Response:\n{output}"
 )
+
+# Plain text / continual pre-training
+from nimbo import prepare_dataset
+dataset = prepare_dataset("data.jsonl", chunk_size=256, deduplicate=True)
 
 # Multi-turn chat
 from nimbo import prepare_chat_dataset
@@ -146,22 +200,15 @@ dataset = prepare_chat_dataset("chat_data.jsonl", tokenizer=tokenizer)
 
 ### `/nimbo:train` — Fine-Tuning
 
-LoRA/QLoRA fine-tuning with automatic model selection, configuration, and execution.
+LoRA/QLoRA 파인튜닝을 수행합니다. 모델 선택, 설정 구성, 실행, 결과 보고까지 자동화합니다.
 
 **Natural language triggers:**
 ```
-"Fine-tune Phi-2 on my dataset"
-"Train LLaMA 3.2 1B with QLoRA"
-"Run instruction tuning on Mistral 7B"
-"Continue training from checkpoint"
+"Fine-tune Phi-2 on my dataset"            "Phi-2를 내 데이터로 파인튜닝해줘"
+"Train LLaMA 3.2 1B with QLoRA"            "LLaMA 3.2 1B QLoRA로 학습해줘"
+"Run instruction tuning on Mistral 7B"     "Mistral 7B 인스트럭션 튜닝 실행해줘"
+"Continue training from checkpoint"         "체크포인트에서 이어서 학습해줘"
 ```
-
-**What it does:**
-1. Recommends a model based on your hardware
-2. Configures LoRA rank, learning rate, batch size, precision
-3. Generates a training script
-4. Executes training with progress monitoring
-5. Reports final metrics (loss, steps, duration)
 
 **Minimal example:**
 ```python
@@ -204,14 +251,14 @@ trainer.save(merge=True)
 
 ### `/nimbo:inference` — Inference & Testing
 
-Generate text, test fine-tuned models, run batch inference, streaming, and chat.
+텍스트 생성, 모델 테스트, 배치 추론, 스트리밍, 챗 모드를 지원합니다.
 
 **Natural language triggers:**
 ```
-"Test my fine-tuned model"
-"Generate text with the trained model"
-"Chat with the model"
-"Run batch inference on my test set"
+"Test my fine-tuned model"                 "학습된 모델 테스트해봐"
+"Generate text with the trained model"     "모델로 텍스트 생성해줘"
+"Chat with the model"                      "모델이랑 대화해봐"
+"Run batch inference on my test set"       "테스트셋으로 배치 추론 돌려줘"
 ```
 
 **Usage modes:**
@@ -243,14 +290,13 @@ response = model.chat([
 
 ### `/nimbo:export` — CoreML Conversion
 
-Convert fine-tuned models to CoreML `.mlpackage` format for Apple devices.
+파인튜닝된 모델을 CoreML `.mlpackage`로 변환합니다. Apple 디바이스 배포용입니다.
 
 **Natural language triggers:**
 ```
-"Convert to CoreML"
-"Export for iOS"
-"Create an mlpackage"
-"Quantize model with LUT for iPhone"
+"Convert to CoreML"                        "CoreML로 변환해줘"
+"Export for iOS"                            "iOS용으로 내보내줘"
+"Quantize model with LUT for iPhone"       "iPhone용 LUT 양자화해줘"
 ```
 
 **Requirements:** macOS only, LLaMA architecture models only
@@ -281,7 +327,9 @@ result = convert_hf_to_coreml(
 
 ### `/nimbo:deploy` — iOS Deployment
 
-Deploy CoreML models to iOS/macOS using NimboChat. This skill is **manual-invoke only** — Claude won't trigger it automatically to prevent accidental builds.
+CoreML 모델을 NimboChat 앱으로 iOS/macOS에 배포합니다.
+
+이 스킬은 **수동 호출 전용**입니다 — 실수로 빌드가 실행되는 것을 방지하기 위해 Claude가 자동으로 트리거하지 않습니다.
 
 **Invoke manually:**
 ```
@@ -289,23 +337,23 @@ Deploy CoreML models to iOS/macOS using NimboChat. This skill is **manual-invoke
 ```
 
 **Pipeline:**
-1. Compile CoreML model: `xcrun coremlcompiler compile model.mlpackage output/`
-2. Rename to NimboChat convention: `model_chunk_01of01.mlmodelc`
-3. Create `meta.yaml` with model parameters
-4. Copy into NimboChat Xcode project
-5. Build and run on device
+1. CoreML 모델 컴파일: `xcrun coremlcompiler compile model.mlpackage output/`
+2. NimboChat 파일명 규칙으로 변환: `model_chunk_01of01.mlmodelc`
+3. `meta.yaml` 생성 (모델 파라미터)
+4. NimboChat Xcode 프로젝트에 복사
+5. 디바이스에 빌드 & 실행
 
 ---
 
 ### `/nimbo:config` — Configuration Management
 
-Create, modify, and load YAML/JSON configuration files.
+YAML/JSON 설정 파일을 생성, 수정, 로드합니다.
 
 **Natural language triggers:**
 ```
-"Create a training config"
-"Make a YAML config for QLoRA"
-"Show me all training parameters"
+"Create a training config"                 "학습 설정 파일 만들어줘"
+"Make a YAML config for QLoRA"             "QLoRA용 YAML 설정 만들어줘"
+"Show me all training parameters"          "학습 파라미터 전부 보여줘"
 ```
 
 **Config file example:**
@@ -334,13 +382,13 @@ trainer = Nimbo.from_config("config.yaml", base_model_name="microsoft/phi-2", da
 
 ### `/nimbo:kernel` — Triton Kernel Optimization
 
-Accelerate training with custom Triton kernels. CUDA GPU required.
+커스텀 Triton 커널로 학습 속도를 가속합니다. CUDA GPU 필요.
 
 **Natural language triggers:**
 ```
-"Speed up training with Triton"
-"Apply kernel optimizations"
-"Use Triton kernels for RMSNorm"
+"Speed up training with Triton"            "Triton으로 학습 속도 올려줘"
+"Apply kernel optimizations"               "커널 최적화 적용해줘"
+"Use Triton kernels for RMSNorm"           "RMSNorm에 Triton 커널 적용해줘"
 ```
 
 **Available kernels:**
@@ -365,17 +413,17 @@ stats = patch_model(model, rms_norm=True, swiglu=True, rope=True)
 
 ## Usage Examples
 
-### Example 1: Instruction Tuning for Korean Cooking
+### Example 1: Korean Cooking Instruction Tuning
 
 ```
 You: "한국어 요리 데이터로 LLaMA 3.2 1B 파인튜닝해줘"
 
-Claude: [Executes the following pipeline]
-  1. Installs Nimbo with appropriate dependencies
-  2. Prepares korean_cooking.jsonl as instruction dataset
-  3. Configures LoRA (r=16) with bf16 precision
-  4. Trains for 3 epochs with gradient checkpointing
-  5. Tests with sample cooking questions
+Claude:
+  1. Nimbo 환경 설치 및 GPU 감지
+  2. korean_cooking.jsonl을 인스트럭션 데이터셋으로 변환
+  3. LoRA (r=16) + bf16 정밀도로 설정
+  4. 3 에포크 학습 (gradient checkpointing 적용)
+  5. 샘플 요리 질문으로 모델 테스트
 ```
 
 ### Example 2: QLoRA on Limited VRAM
@@ -383,8 +431,8 @@ Claude: [Executes the following pipeline]
 ```
 You: "I only have 8GB VRAM. Fine-tune Mistral 7B on my Q&A dataset."
 
-Claude: [Automatically selects QLoRA]
-  - 4-bit quantization with NF4
+Claude:
+  - Automatically selects QLoRA (4-bit NF4 quantization)
   - Batch size 1, gradient accumulation 8
   - Gradient checkpointing enabled
   - Triton kernels for extra speed
@@ -395,7 +443,7 @@ Claude: [Automatically selects QLoRA]
 ```
 You: "Train a small model on my data and deploy it to my iPhone"
 
-Claude: [End-to-end execution]
+Claude:
   1. Recommends LLaMA 3.2 1B (best for mobile)
   2. Prepares dataset, trains with LoRA
   3. Merges adapter: trainer.save(merge=True)
@@ -406,12 +454,36 @@ Claude: [End-to-end execution]
 ### Example 4: Config File Workflow
 
 ```
-You: "Create a reusable training config for my team"
+You: "팀에서 재사용할 학습 설정 파일 만들어줘"
 
-Claude: [Generates nimbo_config.yaml]
-  - All parameters with sensible defaults
-  - Comments explaining each setting
-  - Customized for your hardware
+Claude:
+  - nimbo_config.yaml 생성
+  - 하드웨어에 맞는 최적 기본값 설정
+  - 각 파라미터 설명 포함
+```
+
+### Example 5: Model Optimization
+
+```
+You: "학습 속도가 너무 느려. Triton 커널로 최적화해줘"
+
+Claude:
+  1. Triton 설치 확인
+  2. 모델 아키텍처 호환성 확인
+  3. RMSNorm (7-8x), SwiGLU (3-5x), RoPE (1.9-2.3x) 커널 적용
+  4. 최적화 전후 속도 비교
+```
+
+### Example 6: Post-Training Inference
+
+```
+You: "방금 학습 끝났는데, 모델 성능 테스트해봐. 스트리밍으로 보여줘"
+
+Claude:
+  1. 저장된 모델 경로 확인
+  2. load_for_inference()로 모델 로드
+  3. 스트리밍 모드로 토큰 단위 실시간 출력
+  4. 다양한 프롬프트로 품질 평가
 ```
 
 ---
@@ -481,7 +553,8 @@ Claude: [Generates nimbo_config.yaml]
 ```
 nimbo-claude-plugin/
 ├── .claude-plugin/
-│   └── plugin.json              # Plugin manifest
+│   ├── plugin.json              # Plugin manifest
+│   └── marketplace.json         # Marketplace registration
 ├── CLAUDE.md                    # Nimbo API knowledge base (872 lines)
 ├── skills/
 │   ├── setup/SKILL.md           # Environment setup

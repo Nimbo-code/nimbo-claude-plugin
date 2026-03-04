@@ -4,7 +4,7 @@
   "description": "LLM fine-tuning to on-device deployment — LoRA/QLoRA training, CoreML conversion, and iOS deployment via natural language",
   "owner": {
     "name": "Nimbo",
-    "email": "nimbo@nimbo-code.dev"
+    "email": "nimbo-code@gmail.com"
   },
   "plugins": [
     {
@@ -13,7 +13,7 @@
       "version": "1.0.0",
       "author": {
         "name": "Nimbo",
-        "email": "nimbo@nimbo-code.dev"
+        "email": "nimbo-code@gmail.com"
       },
       "source": "./",
       "category": "machine-learning",
